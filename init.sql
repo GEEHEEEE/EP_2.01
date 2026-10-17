@@ -1,1 +1,65 @@
--- ============================================================-- init.sql — создание схемы БД для приложения «Кулинарная книга»-- СУБД: SQLite-- ============================================================-- Включаем поддержку внешних ключей (в SQLite по умолчанию выключены)PRAGMA foreign_keys = ON;-- -------------------------------------------------------------- Таблица: categories — категории рецептов-- ------------------------------------------------------------CREATE TABLE IF NOT EXISTS categories (    id   INTEGER PRIMARY KEY AUTOINCREMENT,    name TEXT    NOT NULL UNIQUE);-- -------------------------------------------------------------- Таблица: recipes — рецепты-- ------------------------------------------------------------CREATE TABLE IF NOT EXISTS recipes (    id               INTEGER PRIMARY KEY AUTOINCREMENT,    title            TEXT    NOT NULL,    description      TEXT,    category_id      INTEGER REFERENCES categories(id) ON DELETE SET NULL,    default_servings INTEGER NOT NULL CHECK (default_servings > 0),    created_at       DATETIME DEFAULT CURRENT_TIMESTAMP);-- -------------------------------------------------------------- Таблица: ingredients — справочник ингредиентов-- ------------------------------------------------------------CREATE TABLE IF NOT EXISTS ingredients (    id   INTEGER PRIMARY KEY AUTOINCREMENT,    name TEXT    NOT NULL UNIQUE,    unit TEXT    NOT NULL);-- -------------------------------------------------------------- Таблица: recipe_ingredients — состав рецепта (M:N)-- ------------------------------------------------------------CREATE TABLE IF NOT EXISTS recipe_ingredients (    recipe_id     INTEGER NOT NULL REFERENCES recipes(id)     ON DELETE CASCADE,    ingredient_id INTEGER NOT NULL REFERENCES ingredients(id) ON DELETE RESTRICT,    amount        REAL    NOT NULL CHECK (amount > 0),    PRIMARY KEY (recipe_id, ingredient_id));-- -------------------------------------------------------------- Индексы-- -------------------------------------------------------------- Поиск рецептов по названиюCREATE INDEX IF NOT EXISTS idx_recipes_title       ON recipes(title);-- Фильтрация рецептов по категории + JOIN с categoriesCREATE INDEX IF NOT EXISTS idx_recipes_category    ON recipes(category_id);-- JOIN recipe_ingredients > recipes (обратный поиск рецептов по ингредиенту)CREATE INDEX IF NOT EXISTS idx_ri_recipe           ON recipe_ingredients(recipe_id);-- JOIN recipe_ingredients > ingredients (поиск «где используется ингредиент»)CREATE INDEX IF NOT EXISTS idx_ri_ingredient       ON recipe_ingredients(ingredient_id);-- Сортировка ингредиентов по названию (для выпадающих списков)CREATE INDEX IF NOT EXISTS idx_ingredients_name    ON ingredients(name);
+-- ============================================================
+-- init.sql вЂ” СЃРѕР·РґР°РЅРёРµ СЃС…РµРјС‹ Р‘Р” РґР»СЏ РїСЂРёР»РѕР¶РµРЅРёСЏ В«РљСѓР»РёРЅР°СЂРЅР°СЏ РєРЅРёРіР°В»
+-- РЎРЈР‘Р”: SQLite
+-- ============================================================
+
+-- Р’РєР»СЋС‡Р°РµРј РїРѕРґРґРµСЂР¶РєСѓ РІРЅРµС€РЅРёС… РєР»СЋС‡РµР№ (РІ SQLite РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РІС‹РєР»СЋС‡РµРЅС‹)
+PRAGMA foreign_keys = ON;
+
+-- ------------------------------------------------------------
+-- РўР°Р±Р»РёС†Р°: categories вЂ” РєР°С‚РµРіРѕСЂРёРё СЂРµС†РµРїС‚РѕРІ
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS categories (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT    NOT NULL UNIQUE
+);
+
+-- ------------------------------------------------------------
+-- РўР°Р±Р»РёС†Р°: recipes вЂ” СЂРµС†РµРїС‚С‹
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS recipes (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    title            TEXT    NOT NULL,
+    description      TEXT,
+    category_id      INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    default_servings INTEGER NOT NULL CHECK (default_servings > 0),
+    created_at       DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ------------------------------------------------------------
+-- РўР°Р±Р»РёС†Р°: ingredients вЂ” СЃРїСЂР°РІРѕС‡РЅРёРє РёРЅРіСЂРµРґРёРµРЅС‚РѕРІ
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ingredients (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT    NOT NULL UNIQUE,
+    unit TEXT    NOT NULL
+);
+
+-- ------------------------------------------------------------
+-- РўР°Р±Р»РёС†Р°: recipe_ingredients вЂ” СЃРѕСЃС‚Р°РІ СЂРµС†РµРїС‚Р° (M:N)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS recipe_ingredients (
+    recipe_id     INTEGER NOT NULL REFERENCES recipes(id)     ON DELETE CASCADE,
+    ingredient_id INTEGER NOT NULL REFERENCES ingredients(id) ON DELETE RESTRICT,
+    amount        REAL    NOT NULL CHECK (amount > 0),
+    PRIMARY KEY (recipe_id, ingredient_id)
+);
+
+-- ------------------------------------------------------------
+-- РРЅРґРµРєСЃС‹
+-- ------------------------------------------------------------
+
+-- РџРѕРёСЃРє СЂРµС†РµРїС‚РѕРІ РїРѕ РЅР°Р·РІР°РЅРёСЋ
+CREATE INDEX IF NOT EXISTS idx_recipes_title       ON recipes(title);
+
+-- Р¤РёР»СЊС‚СЂР°С†РёСЏ СЂРµС†РµРїС‚РѕРІ РїРѕ РєР°С‚РµРіРѕСЂРёРё + JOIN СЃ categories
+CREATE INDEX IF NOT EXISTS idx_recipes_category    ON recipes(category_id);
+
+-- JOIN recipe_ingredients в†’ recipes (РѕР±СЂР°С‚РЅС‹Р№ РїРѕРёСЃРє СЂРµС†РµРїС‚РѕРІ РїРѕ РёРЅРіСЂРµРґРёРµРЅС‚Сѓ)
+CREATE INDEX IF NOT EXISTS idx_ri_recipe           ON recipe_ingredients(recipe_id);
+
+-- JOIN recipe_ingredients в†’ ingredients (РїРѕРёСЃРє В«РіРґРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РёРЅРіСЂРµРґРёРµРЅС‚В»)
+CREATE INDEX IF NOT EXISTS idx_ri_ingredient       ON recipe_ingredients(ingredient_id);
+
+-- РЎРѕСЂС‚РёСЂРѕРІРєР° РёРЅРіСЂРµРґРёРµРЅС‚РѕРІ РїРѕ РЅР°Р·РІР°РЅРёСЋ (РґР»СЏ РІС‹РїР°РґР°СЋС‰РёС… СЃРїРёСЃРєРѕРІ)
+CREATE INDEX IF NOT EXISTS idx_ingredients_name    ON ingredients(name);
