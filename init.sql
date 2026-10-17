@@ -48,18 +48,8 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients (
 -- ------------------------------------------------------------
 -- Индексы
 -- ------------------------------------------------------------
-
--- Поиск рецептов по названию
 CREATE INDEX IF NOT EXISTS idx_recipes_title       ON recipes(title);
-
--- Фильтрация рецептов по категории + JOIN с categories
 CREATE INDEX IF NOT EXISTS idx_recipes_category    ON recipes(category_id);
-
--- JOIN recipe_ingredients → recipes (обратный поиск рецептов по ингредиенту)
 CREATE INDEX IF NOT EXISTS idx_ri_recipe           ON recipe_ingredients(recipe_id);
-
--- JOIN recipe_ingredients → ingredients (поиск «где используется ингредиент»)
 CREATE INDEX IF NOT EXISTS idx_ri_ingredient       ON recipe_ingredients(ingredient_id);
-
--- Сортировка ингредиентов по названию (для выпадающих списков)
 CREATE INDEX IF NOT EXISTS idx_ingredients_name    ON ingredients(name);
