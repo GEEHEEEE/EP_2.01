@@ -1,0 +1,6 @@
+INSERT INTO categories (name) VALUES ('Супы');
+INSERT INTO ingredients (name, unit) VALUES ('Свёкла', 'г');
+INSERT INTO ingredients (name, unit) VALUES ('Мясо', 'г');
+INSERT INTO recipes (title, category_id, default_servings) VALUES ('Борщ', 1, 4);
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, amount) VALUES (1, 1, 300);
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, amount) VALUES (1, 2, 500);
