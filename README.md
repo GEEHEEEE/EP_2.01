@@ -29,6 +29,6 @@
 - docs/uml/ — UML-диаграмма и проектирование DAO.
 
 ## 📑 Документация
-- Бриф проекта (BRIEF.md)
-- UML Use Case диаграмма (docs/uml/use-case.png)
-- Проектирование DAO и SQL-запросы (docs/uml/dao-design.md)
+- [Бриф проекта (BRIEF.md)](BRIEF.md)
+- [UML Use Case диаграмма](docs/uml/use-case.png)
+- [Проектирование DAO и SQL-запросы](docs/uml/dao-design.md)
